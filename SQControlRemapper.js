@@ -23,13 +23,13 @@
  *
  * @param titleWindowHeight
  * @text Title Window Height
- * @type number
+ * @type string
  * @description Height of the "Control Options" window as a percentage of the total screen height (between 0 and 1)
  * @default 0.12
  *
  * @param optionLabelWidth
  * @text Option Label Width
- * @type number
+ * @type string
  * @description Width of the labels in the upper sub-window (e.g. "Reset to Defaults") as a percentage of the total screen height (between 0 and 1)
  * @default 0.25
  *
@@ -41,7 +41,7 @@
  *
  * @param optionsWindowHeight
  * @text Options Window Height
- * @type number
+ * @type string
  * @description Height of the upper sub-window as a percentage of the total screen height (between 0 and 1)
  * @default 0.25
  *

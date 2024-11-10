@@ -304,7 +304,19 @@ function SQInput() {
 			fieldTitle: "Dash",
 			keyboardButton: "KeyQ",
 			gamepadButton: 6, // Left Trigger
-		}
+		},
+		cycle_right: {
+			name: "pageup",
+			fieldTitle: "Page Up",
+			keyboardButton: "PageUp",
+			gamepadButton: 7,
+		},
+		cycle_left: {
+			name: "pagedown",
+			fieldTitle:  "Page Down",
+			keyboardButton: "PageDown",
+			gamepadButton: 8
+		},
 	};
 
 
@@ -330,10 +342,10 @@ function SQInput() {
 	};
 
 	SQInput.codeToIconIndex = {
-		"ArrowLeft": 32,
-		"ArrowUp": 33,
-		"ArrowRight": 34,
-		"ArrowDown": 35,
+		"ArrowLeft": 0,
+		"ArrowUp": 1,
+		"ArrowRight": 2,
+		"ArrowDown": 3,
 		null: 0,
 		"Enter": 1,
 		"Space": 2,
@@ -560,6 +572,8 @@ function SQInput() {
 		newKeyboardMap[this.inputs["confirm"].keyboardButton] = ["confirm"];
 		newKeyboardMap[this.inputs["confirm"].keyboardButton].push("ok");
 		newKeyboardMap[this.inputs["dash"].keyboardButton] = ["shift"];
+		newKeyboardMap[this.inputs["cycle_left"].keyboardButton] = ["pageup"];
+		newKeyboardMap[this.inputs["cycle_right"].keyboardButton] = ["pagedown"];
 
 		Input.keyMapper = newKeyboardMap;
 
@@ -786,23 +800,11 @@ function SQInput() {
 	// Draw a keyboard icon based on the name of a SQ function
 	SQInput.getKeyboardControlIconIndex = function(param) {
 		let keyboardButton = this.inputs[param].keyboardButton;
-		let iconIndex = 0;
+		let iconIndex = SQInput.baseKeyboardIconIndex + SQInput.codeToIconIndex[keyboardButton];
 
-		// A very ugly hack because the keyboard icon set doesn't have its own set of arrows
-		// All of the controller button sets have copies of the arrows, so use the first one of those
-		if (keyboardButton >= 37 && keyboardButton <= 40) {
-			iconIndex = SQInput.baseControlIconIndex + (keyboardButton - 37);
-		}
-		// Numpad keys. Remap to the normal number key icons
-		// 48 is the code for 0 on the number row
-		else if (keyboardButton >= 96 && keyboardButton <= 106) {
-			iconIndex = SQInput.baseControlIconIndex + SQInput.buttonSetSize * 5 + (keyboardButton - 96);
-		}
-		else if (keyboardButton.startsWith("Arrow")) {
-			iconIndex = SQInput.codeToIconIndex[keyboardButton];
-		}
-		else if (keyboardButton in SQInput.codeToIconIndex) {
-			iconIndex = SQInput.baseKeyboardIconIndex + SQInput.codeToIconIndex[keyboardButton];
+		// Use the gamepad icons for keyboard
+		if (keyboardButton.startsWith("Arrow")) {
+			iconIndex -= 64;
 		}
 
 		return iconIndex;
@@ -923,7 +925,11 @@ function SQInput() {
 			if (matches.length === 5) {
 				let iconIndex1 = this.obtainEscapeCodeIconIndex(matches[1], matches[3]);
 				let iconIndex2 = this.obtainEscapeCodeIconIndex(matches[2], matches[4]);
+
+				ImageManager.setIconImage(SQInput.buttonIconSet)
 				this.processDrawDoubleIcon(iconIndex1, iconIndex2, textState);
+				ImageManager.resetIconImage();
+
 				textState.index += matches[0].length;
 			}
 
@@ -947,12 +953,12 @@ function SQInput() {
 	}
 
 	Window_Base.prototype.drawDoubleIcon = function(iconIndex1, iconIndex2, x, y, scaleX = 0.7, scaleY = 0.7) {
-		const bitmap = ImageManager.loadSystem("IconSet");
+		const bitmap = ImageManager.loadSystem(ImageManager.currentIconSet);
 		const pw = ImageManager.iconWidth;
 		const ph = ImageManager.iconHeight;
 		let sx = (iconIndex1 % 16) * pw;
 		let sy = Math.floor(iconIndex1 / 16) * ph;
-		this.contents.blt(bitmap, sx, sy, pw, ph, x, y, ImageManager.iconWidth * scaelX, ImageManager.iconHeight * scaleY);
+		this.contents.blt(bitmap, sx, sy, pw, ph, x, y, ImageManager.iconWidth * scaleX, ImageManager.iconHeight * scaleY);
 
 		sx = (iconIndex2 % 16) * pw;
 		sy = Math.floor(iconIndex2 / 16) * ph;
